@@ -1,0 +1,33 @@
+# Rust 构建产物
+core/target/
+target/
+**/target/
+# 隔离冒烟测试的临时 HOME（含 rustup/cargo 缓存，体积巨大）
+core/.smoke/
+
+# 设计 / 进度文档：仅本地保留，不随仓库上传
+docs/
+
+# Flutter / Dart 构建产物与缓存
+app/build/
+app/.dart_tool/
+app/.flutter-plugins
+app/.flutter-plugins-dependencies
+app/macos/Flutter/ephemeral/
+app/macos/Pods/
+app/macos/.symlinks/
+
+# Windows 构建产物与 Flutter 生成的临时文件
+app/windows/flutter/ephemeral/
+app/windows/x64/
+app/windows/x86/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# 本地凭据 / 数据目录（绝不入库）
+*.bak

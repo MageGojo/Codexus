@@ -1,0 +1,118 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    name: Test (Rust + Flutter)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: core
+      - name: Cargo test (workspace)
+        working-directory: core
+        run: cargo test --workspace
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Flutter pub get
+        working-directory: app
+        run: flutter pub get
+      - name: Flutter analyze
+        working-directory: app
+        run: flutter analyze
+      - name: Flutter test
+        working-directory: app
+        run: flutter test
+
+  build-windows:
+    name: Build Windows (x64)
+    runs-on: windows-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: core
+      - name: Build daemon (release)
+        working-directory: core
+        run: cargo build --release -p ferry-daemon
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Enable Windows desktop
+        run: flutter config --enable-windows-desktop
+      - name: Flutter pub get
+        working-directory: app
+        run: flutter pub get
+      - name: Build Windows app (release)
+        working-directory: app
+        run: flutter build windows --release
+      - name: Bundle daemon next to GUI
+        shell: pwsh
+        run: |
+          $dest = "app/build/windows/x64/runner/Release"
+          Copy-Item "core/target/release/ferry-daemon.exe" -Destination $dest -Force
+          Get-ChildItem $dest
+      - name: Package zip
+        shell: pwsh
+        run: Compress-Archive -Path "app/build/windows/x64/runner/Release/*" -DestinationPath "Codexus-windows-x64.zip" -Force
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Codexus-windows-x64
+          path: Codexus-windows-x64.zip
+
+  build-macos:
+    name: Build macOS
+    runs-on: macos-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: core
+      - name: Build daemon (release)
+        working-directory: core
+        run: cargo build --release -p ferry-daemon
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Enable macOS desktop
+        run: flutter config --enable-macos-desktop
+      - name: Flutter pub get
+        working-directory: app
+        run: flutter pub get
+      - name: Build macOS app (release)
+        working-directory: app
+        run: flutter build macos --release
+      - name: Bundle daemon into .app and ad-hoc sign
+        run: |
+          APP="app/build/macos/Build/Products/Release/Codexus.app"
+          cp core/target/release/ferry-daemon "$APP/Contents/Resources/ferry-daemon"
+          codesign --force -s - "$APP/Contents/Resources/ferry-daemon"
+          codesign --force --deep -s - "$APP"
+          codesign --verify --deep --strict "$APP"
+      - name: Package zip
+        working-directory: app/build/macos/Build/Products/Release
+        run: ditto -c -k --keepParent Codexus.app "$GITHUB_WORKSPACE/Codexus-macos.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Codexus-macos
+          path: Codexus-macos.zip

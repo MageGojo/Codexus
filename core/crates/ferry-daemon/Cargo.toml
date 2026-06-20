@@ -1,0 +1,24 @@
+[package]
+name = "ferry-daemon"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "ferry-daemon"
+path = "src/main.rs"
+
+[dependencies]
+ferry-proxy = { path = "../ferry-proxy" }
+ferry-convert = { path = "../ferry-convert" }
+ferry-auth = { path = "../ferry-auth" }
+tokio = { workspace = true }
+reqwest = { workspace = true }
+anyhow = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+ferry-store = { version = "0.1.0", path = "../ferry-store" }
+ferry-config = { version = "0.1.0", path = "../ferry-config" }
+ferry-ipc = { version = "0.1.0", path = "../ferry-ipc" }

@@ -1,0 +1,23 @@
+[package]
+name = "ferry-ipc"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+axum.workspace = true
+chrono = { workspace = true }
+ferry-auth = { version = "0.1.0", path = "../ferry-auth" }
+ferry-codexlog = { version = "0.1.0", path = "../ferry-codexlog" }
+ferry-config = { version = "0.1.0", path = "../ferry-config" }
+ferry-convert = { version = "0.1.0", path = "../ferry-convert" }
+ferry-proxy = { version = "0.1.0", path = "../ferry-proxy" }
+ferry-store = { version = "0.1.0", path = "../ferry-store" }
+reqwest = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
+tokio.workspace = true
+tracing.workspace = true

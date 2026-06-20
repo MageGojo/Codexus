@@ -1,0 +1,21 @@
+[package]
+name = "ferry-proxy"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ferry-convert = { path = "../ferry-convert" }
+tokio = { workspace = true }
+axum = { workspace = true }
+reqwest = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+anyhow = { workspace = true }
+futures = { workspace = true }
+bytes = { workspace = true }
+async-stream = { workspace = true }
+chrono = { workspace = true }
+ferry-store = { version = "0.1.0", path = "../ferry-store" }
+tiktoken-rs = "0.12.0"
